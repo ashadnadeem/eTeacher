@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import jxl.read.biff.BiffException;
+import jxl.write.WriteException;
 
 /**
  *
@@ -175,20 +176,24 @@ public class addMarks extends javax.swing.JFrame {
     private void SubmitJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SubmitJBActionPerformed
         // TODO add your handling code here:
         int size = this.studentList.length + 2;
-        String [] data = new String[size];
+        Object [] data = new Object[size];
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         try {
             data[0] = QNameTF.getText().trim();
-            data[1] = marksTF.getText().trim();
-            ExcelWrite write =  new ExcelWrite("Student.xls","MarkSheet",2);
+            data[1] = Double.parseDouble(marksTF.getText().trim());
             for(int i=0;i<studentList.length;i++){
-                data[i + 2] = (String) model.getValueAt(i, 1);
+                data[i + 2] = Double.parseDouble(model.getValueAt(i, 1).toString());
+                if ((Double)data[i+2] > (Double)data[1])
+                    throw new Blank("Marks Obtained cannot be greater than Maximum Marks ");
             }
+            ExcelWrite write =  new ExcelWrite("Student.xls","MarkSheet",2);
             write.writeMarks(data);
-            System.exit(0);
-        } catch (Exception ex) {
+            this.setVisible(false);
+        } catch (IOException | NumberFormatException | BiffException | WriteException ex) {
             Logger.getLogger(updateStudentInfo.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, ex);
+            JOptionPane.showMessageDialog(this, "Encountered an error!");
+        } catch (Blank to) {
+            JOptionPane.showMessageDialog(this, to.toString());
         }
         
     }//GEN-LAST:event_SubmitJBActionPerformed
@@ -231,6 +236,9 @@ public class addMarks extends javax.swing.JFrame {
             row[0] = studentList[i];
             model.addRow(row);
         }
+        row = new String[1];
+        row[0] = "";
+        model.addRow(row);
     }
     
     

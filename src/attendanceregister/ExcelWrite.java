@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.logging.*;
 import jxl.*;
 import jxl.read.biff.BiffException;
 import jxl.write.*;
@@ -48,15 +49,28 @@ public class ExcelWrite {
     ExcelWrite(String studentxls) throws IOException, BiffException, WriteException {
         try {
             this.fileName = studentxls;
-            
             wb = Workbook.getWorkbook(new File(fileName));
-            
-        }catch (FileNotFoundException ex) {
-            //Creating New Sheet Cause It doesn't Exist
-            System.err.println("File Not Found");
+            System.out.println("Creating Backup of the File");
+            WritableWorkbook copy = Workbook.createWorkbook(new File("Student-Backup.xls"),wb);
+            copy.write();copy.close();
+        }catch(Exception f){
+            //Restore from Backup
+            System.err.println("File Not Found \nRestoring From Backup");
+            restoreBackup();
+        }
+    }
+    
+    private void restoreBackup() throws IOException, WriteException{
+        try {
+            Workbook backup = Workbook.getWorkbook(new File("Student-Backup.xls"));
+            WritableWorkbook copy = Workbook.createWorkbook(new File("Student.xls"),backup);
+            copy.write();copy.close();
+        }catch (Exception ex) {
+            System.err.println("Backup File Not Found");
             fileNotFound();
         }
     }
+    
     public void calculateNewFields(){
         Sheet sheet = wb.getSheet(this.sheetNo);
         this.newColumnMark = sheet.getColumns();
@@ -113,29 +127,29 @@ public class ExcelWrite {
             System.out.println("Closing Sheet " + this.sheetName);
         }catch(Exception e){}
     }
-    public void writeMarks(String[] Data){
+    public void writeMarks(Object[] Data){
         try{
             WritableWorkbook copy = Workbook.createWorkbook(new File(fileName),wb);
             WritableSheet copySheet = copy.getSheet(sheetNo);
             
-            addDate(copy, copySheet);                     //Adding Test Name
-            
-            Number num;
-            label = new Label(newColumnMark, (1), Data[0]);
-            copySheet.addCell(label);
+            addDate(copy, copySheet);
+            for(int i=0;i<Data.length;i++) 
+                System.out.println(Data[i]);
             System.out.println(Data.length);
-            for(int i=1;i<Data.length;i++){
+            for(int i=0;i<Data.length;i++){
                 try{
-                    num = new Number(newColumnMark, (i+1), Double.parseDouble(Data[i]));
-                    copySheet.addCell(num);
-                }catch(NumberFormatException x){}
+                    copySheet.addCell(new Number(newColumnMark, (i+1), (Double)Data[i]));
+                }catch(NumberFormatException | ClassCastException | NullPointerException x){
+                    copySheet.addCell(new Label(newColumnMark, (i+1), (String)Data[i]));
+                }
             }            
             System.out.println("Entry Added Successfully " +this.sheetName);
             copy.write();
             copy.close();
             System.out.println("Closing Sheet " + this.sheetName);
-        }catch(Exception e){
-            System.err.println(e.toString());
+        }catch(Exception ex){
+            System.err.println(ex.toString());
+            Logger.getLogger(updateStudentInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
