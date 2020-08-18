@@ -5,10 +5,10 @@
  */
 package attendanceregister;
 
-import static java.awt.Toolkit.getDefaultToolkit;
 import java.io.File; 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import jxl.*;
@@ -44,6 +44,19 @@ public class ExcelWrite {
             fileNotFound();
         }
     }
+
+    ExcelWrite(String studentxls) throws IOException, BiffException, WriteException {
+        try {
+            this.fileName = studentxls;
+            
+            wb = Workbook.getWorkbook(new File(fileName));
+            
+        }catch (FileNotFoundException ex) {
+            //Creating New Sheet Cause It doesn't Exist
+            System.err.println("File Not Found");
+            fileNotFound();
+        }
+    }
     public void calculateNewFields(){
         Sheet sheet = wb.getSheet(this.sheetNo);
         this.newColumnMark = sheet.getColumns();
@@ -53,54 +66,35 @@ public class ExcelWrite {
     }
     
     public void addDate(WritableWorkbook copy, WritableSheet copySheet) throws WriteException, IOException{
-        
-        dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");  
-        now = LocalDate.now();
-        System.out.println(dtf.format(now));
-        label = new Label(newColumnMark, (0), dtf.format(now));
-        copySheet.addCell(label);
+        //Write Attendance as DateCell
+        copySheet.addCell(new DateTime(newColumnMark, 0, Date.valueOf(LocalDate.now()), new jxl.write.WritableCellFormat(new DateFormat("dd/MM/yyyy"))));
     }
-    public void writeRow(String[] Data){
-        try{
-            WritableWorkbook copy = Workbook.createWorkbook(new File(this.fileName),wb);
-            WritableSheet copySheet = copy.getSheet(this.sheetNo);
-            Number num;
-            for(int i=0;i<Data.length;i++){
-                try{
-                    num = new Number(i, newRowMark, Double.parseDouble(Data[i]));
-                    copySheet.addCell(num);
-                }catch(NumberFormatException e){
-                    this.label = new Label(i, newRowMark, Data[i]);
-                    copySheet.addCell(label);
-                }
-            }            
-            System.out.println("Entry Added Successfully " +this.sheetName);
-            copy.write();
-            System.out.println("Closing Sheet " + this.sheetName);
-            copy.close();
-        }catch(Exception e){}
-    }
-    
-    void writeRow(String[] Data, int rowNum) {
+    void writeRow(Object[] Data, int rowNum) {
         //To edit the Existing row
         try{
             WritableWorkbook copy = Workbook.createWorkbook(new File(this.fileName),wb);
             WritableSheet copySheet = copy.getSheet(this.sheetNo);
-            Number num;
-            for(int i=0;i<Data.length;i++){
-                try{
-                    num = new Number(i, rowNum, Double.parseDouble(Data[i]));
-                    copySheet.addCell(num);
-                }catch(NumberFormatException e){
-                    this.label = new Label(i, rowNum, Data[i]);
-                    copySheet.addCell(label);
-                }
-            }            
-            System.out.println("Entry Added Successfully " +this.sheetName);
+            
+            //Write Name as string
+            copySheet.addCell(new Label(0, rowNum, (String)Data[0]));
+            //Write ID as Number
+            copySheet.addCell(new Number(1, rowNum, (int)Data[1]));
+            //Write Gender as Capital Char from String
+            copySheet.addCell(new Label(2, rowNum, (String)Data[2]));
+            //Write DOB as DateCell
+            copySheet.addCell(new DateTime(3, rowNum, Date.valueOf((LocalDate) Data[3]), new jxl.write.WritableCellFormat(new DateFormat("yyyy-mm-dd"))));
+            //Write Age as Number
+            copySheet.addCell(new Number(4, rowNum, (int)Data[4]));
+            //Write Email as string
+            copySheet.addCell(new Label(5, rowNum, (String)Data[5]));
+            
+            System.out.println("Entry Added Successfully ");
             copy.write();
-            System.out.println("Closing Sheet " + this.sheetName);
+            System.out.println("Closing Sheet ");
             copy.close();
-        }catch(Exception e){}
+        }catch(Exception e){
+            System.err.println(e.toString());
+        }   
     }
     public void writeAttendance(String[] Data) throws IOException, WriteException {
         try{
@@ -166,6 +160,48 @@ public class ExcelWrite {
         wb.close();
     }
 
-    
-    
+    public void NewStudent(Object[] Data) {
+        try{
+            WritableWorkbook copy = Workbook.createWorkbook(new File(this.fileName),wb);
+            
+            //Attendance Sheet:
+            this.sheetName = "Attendance";
+            this.sheetNo = 0;
+            this.calculateNewFields();
+            WritableSheet attendanceSheet = copy.getSheet(this.sheetNo);
+            attendanceSheet.addCell(new Label(0, newRowMark, (String)Data[0]));
+            
+            //Mark Sheet:
+            this.sheetName = "MarkSheet";
+            this.sheetNo = 2;
+            this.calculateNewFields();
+            WritableSheet markSheet = copy.getSheet(this.sheetNo);
+            markSheet.addCell(new Label(0, newRowMark, (String)Data[0]));
+            
+            //Personal Data Sheet:
+            this.sheetName = "StudentData";
+            this.sheetNo = 1;
+            this.calculateNewFields();
+            WritableSheet studentDataSheet = copy.getSheet(this.sheetNo);
+            //Write Name as string
+            studentDataSheet.addCell(new Label(0, newRowMark, (String)Data[0]));
+            //Write ID as Number
+            studentDataSheet.addCell(new Number(1, newRowMark, (int)Data[1]));
+            //Write Gender as Capital Char from String
+            studentDataSheet.addCell(new Label(2, newRowMark, (String)Data[2]));
+            //Write DOB as DateCell
+            studentDataSheet.addCell(new DateTime(3, newRowMark, Date.valueOf((LocalDate) Data[3]), new jxl.write.WritableCellFormat(new DateFormat("yyyy-mm-dd"))));
+            //Write Age as Number
+            studentDataSheet.addCell(new Number(4, newRowMark, (int)Data[4]));
+            //Write Email as string
+            studentDataSheet.addCell(new Label(5, newRowMark, (String)Data[5]));
+            
+            System.out.println("Entry Added Successfully ");
+            copy.write();
+            System.out.println("Closing Sheet ");
+            copy.close();
+        }catch(Exception e){
+            System.err.println(e.toString());
+        }
+    }
 }

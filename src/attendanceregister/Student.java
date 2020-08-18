@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 
@@ -92,27 +90,16 @@ public class Student {
         this.DOB = DOB;
     }
     public void addStd() throws IOException, WriteException, BiffException{
-        String [] data = new String[6];
+        Object [] data = new Object[6];
         data[0] = this.Name;
-        data[1] = this.ID + "";
-        data[2] = this.gender + "";
-        data[3] = this.DOB.toString();
-        data[4] = this.Age + "";
+        data[1] = this.ID;
+        data[2] = this.gender +"";
+        data[3] = this.DOB;
+        data[4] = this.Age;
         data[5] = this.email;
         
-        ExcelWrite write = new ExcelWrite("Student.xls","StudentData",1);
-        write.writeRow(data);
-        
-        
-        ExcelWrite register = new ExcelWrite("Student.xls","Attendance",0);
-        String[] row = new String[1];
-        row[0] = this.getName();
-        register.writeRow(row);
-        
-        ExcelWrite marksheet = new ExcelWrite("Student.xls","MarkSheet",2);
-        String []arr = {"Name"};
-        marksheet.writeRow(arr);
-        
+        ExcelWrite write = new ExcelWrite("Student.xls");
+        write.NewStudent(data);
     }
 
     private int calculateAge(LocalDate birthDate) {

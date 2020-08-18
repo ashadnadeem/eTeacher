@@ -7,17 +7,12 @@ package attendanceregister;
 
 import java.awt.Dimension;
 import static java.awt.Toolkit.getDefaultToolkit;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
 import javax.swing.table.DefaultTableModel;
-import jxl.Sheet;
-import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 

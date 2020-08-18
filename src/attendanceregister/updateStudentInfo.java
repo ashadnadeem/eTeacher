@@ -7,7 +7,8 @@ package attendanceregister;
 
 
 import java.io.FileNotFoundException;
-import java.util.Vector;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -24,6 +25,7 @@ public class updateStudentInfo extends javax.swing.JFrame {
         initComponents();
         tableUpdate();
         idTF.setEditable(false);
+        attTF.setEditable(false);
     }
 
     /**
@@ -205,14 +207,15 @@ public class updateStudentInfo extends javax.swing.JFrame {
         int index = table.getSelectedRow();
 
         try {
-            String [] updatedData = new String[6];;
+            Object [] updatedData = new Object[6];;
             int rowNum = index + 1;
             ExcelWrite write =  new ExcelWrite("Student.xls","StudentData",1);
             updatedData[0] = nameTF.getText().trim();
-            updatedData[1] = idTF.getText().trim();
+            updatedData[1] = Integer.parseInt(idTF.getText().trim());
             updatedData[2] = genderTF.getText().trim();
-            updatedData[3] = DOBTF.getText().trim();
-            updatedData[4] = ageTF.getText().trim();
+//            updatedData[3] = DOBTF.getText().trim();
+            updatedData[3] = LocalDate.parse(DOBTF.getText().trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            updatedData[4] = Integer.parseInt(ageTF.getText().trim());
             updatedData[5] = emailTF.getText().trim();
             
             write.writeRow(updatedData,rowNum);

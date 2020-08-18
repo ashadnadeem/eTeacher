@@ -12,8 +12,6 @@ import java.awt.Dimension;
 import static java.awt.Toolkit.getDefaultToolkit;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.*;
 import javax.swing.JOptionPane;
 import jxl.read.biff.*;

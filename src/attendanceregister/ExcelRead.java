@@ -7,15 +7,14 @@ package attendanceregister;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Set;
 import jxl.Cell;
+import jxl.DateCell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
-import jxl.write.Label;
 import jxl.write.*;
 
 /**
@@ -71,15 +70,15 @@ public class ExcelRead {
         LocalDate dob;
         char gen;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         Cell[] row;
         for(int i=0;i<rows-1;i++){
             row = this.sheet.getRow(i+1);
-            
             //String Name, String email, int ID, char gender, LocalDate DOB
             name = (row[0].getContents());
             id  = ( Integer.parseInt(row[1].getContents().trim()) );
             gen = (row[2].getContents().trim().charAt(0));
-            dob = (LocalDate.parse(row[3].getContents().trim(), formatter));
+            dob = LocalDate.parse( sdf.format(((DateCell) row[3] ).getDate()), formatter );
             email = ( row[5].getContents().trim());
             
             stds[i] = new Student(name,email,id,gen,dob);
@@ -112,11 +111,12 @@ public class ExcelRead {
         return count;
     }
     public String[] getStudents(){
+        //Returns a list of Names of all students
         Cell [] colOfNames = sheet.getColumn(0);
         String [] names = new String[colOfNames.length-1];
         for(int i=1;i<colOfNames.length;i++){
             names[i-1] = colOfNames[i].getContents().toString().trim();
         }
         return names;
-    }
+    }  
 }

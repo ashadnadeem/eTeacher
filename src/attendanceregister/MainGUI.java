@@ -22,10 +22,6 @@ import jxl.write.WriteException;
  */
 public class MainGUI extends javax.swing.JFrame{
 
-
-    /**
-     * Creates new form Questions
-     */
     public MainGUI() throws FileNotFoundException,NullPointerException{
         
         try {
